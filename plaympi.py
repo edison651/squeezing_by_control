@@ -67,7 +67,7 @@ all_leng = comm.gather(leng, root=0)
 
 if rank==0:
     print(all_mem)
-    filepath2 = '/home/ipht/ecarrera/qcontrol/data/itneverends/'+str(n)+'spins/final_parameters_sqy_mz_N'+str(n)+'_ising_T'+str(total_t)+'ysq_params'+str(para_per_gate)+'div'+str(div)+'c'+str(c)+'_end00029.txt'
+    filepath2 = 'path' # add the path here
     with open(filepath2, 'w') as f2:
         f2.write('Optimization Parameters:\n')
         for key, value in learn_params.items():
