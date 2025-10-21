@@ -1,5 +1,8 @@
+'''
+Here he show an example of how to use the code. From many different initial conditions, we find the optimal pulses.
+'''
 import numpy as np
-import mod_qcontrol as qc
+import module_control as qc
 import jax
 import jax.numpy as jnp
 import argparse
@@ -13,42 +16,41 @@ rank = comm.Get_rank() # ranks each process
 
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument('number', type=int, help='number of spins')
-parser.add_argument('spin_import', type=float, help='mean spin matters')
-args = parser.parse_args()
 
-n=args.number #system size
-para_per_gate = 3 #number of parameters per control gate
-div = 3 #number of groups in the initial conditions
-c = args.spin_import # 0 if you do not care about the spin lenght. Otherwise, 1 is a good value.
+n=6 #system size
+para_per_gate = 30 #number of parameters per control gate
+div = 6 #number of groups in the initial conditions
+c = 0 # 0 if you do not care about the spin length. Otherwise, 1 is a good value.
 a_max = 4.0 # the max value of the X and Z pulses
 one=1e-1 #the min value of the parameter for H0
+
 constrain_lower=jnp.array([-a_max, 0.0 , 0.0])
 constrain_upper=jnp.array([a_max, jnp.sqrt(a_max), 1.0])
 ini_params= jax.random.uniform(jax.random.PRNGKey(rank*n*89), minval=constrain_lower[:, None], maxval=constrain_upper[:, None], shape=(3, div))
 ini_params = jnp.repeat(ini_params,int(para_per_gate/div), axis=-1)
 
 
-total_t = 8. #total duration of the protocol when Z,X and H0 parameters are optimized 
+total_t = 8. #total duration of the protocol when Z, ,X, and H0 parameters are optimized 
 
 learn_params = {
     'learning_steps': 400000, #max number of steps
     'ini_learning_rate' : 0.04, # initial learning rate
-    'patience': 400, # steps the algorithm will wait to reduce the learning rate if the cost function do not decrease
+    'patience': 400, # steps the algorithm will wait to reduce the learning rate if the cost function does not decrease
     'spin_lenght': c, #desired spin length
-    'spin_focus': 0., #how much do you care about the spin lenght, 0=>Not at all
+    'spin_focus': 0., #how much do you care about the spin length, 0=>Not at all
     'first_smooth': 0.,#1.8/para_per_gate, # First derivative hyperparameter
     'second_smooth': 0., #0.21/para_per_gate, # Second derivative hyperparameter
     'duration': 0.005, # duration hyperparameter
-    'limit_amplitude':2.*a_max/one  # limit of the amplitude when X and Z paramters are transformed
+    'limit_amplitude':2.*a_max/one  # limit of the amplitude when X and Z parameters are transformed
 }
 #ini_params = jax.random.truncated_normal(jax.random.PRNGKey(rank*para_per_gate), lower=constrain_lower[:, None], upper=constrain_upper[:, None], shape=(3,para_per_gate))
 print('loading...')
 #here we load the projected operators
-h0 = np.load("/home/ipht/ecarrera/qcontrol/codes/operators/h0_"+str(n)+".npy") #Hamiltonian
-spins = np.load("/home/ipht/ecarrera/qcontrol/codes/operators/spin_ops_"+str(n)+".npy") #Control operators: collective Z and X
-ini = np.load('/home/ipht/ecarrera/qcontrol/codes/operators/ini_state_'+str(n)+'.npy') #the initial state
+mom_trans = qc.get_momentum_eigenstates(n,0)
+h0 = mom_trans@qc.real_vander_ising_H(n,qc.ring(n))@mom_trans.T
+spin_ops = [qc.sym_col_sigmas(n,0,mom_trans),qc.sym_col_sigmas(n,1,mom_trans),qc.sym_col_sigmas(n,2,mom_trans)]
+ini = mom_trans@qc.css(0,0,n)
+
 sq_d = jnp.array([0.,1.,0.]) # Squeezing direction
 mean_d = jnp.array([0.,0.,1.]) # Mean spin direction
 
