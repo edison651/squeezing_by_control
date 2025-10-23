@@ -4,9 +4,6 @@ Code to find optimized time-dependent control pulses in Rydberg-atom arrays to g
 
 Repository
 - GitHub: https://github.com/edison651/squeezing_by_control
-- Owner: edison651
-- Default branch: main
-- Current tree: https://github.com/edison651/squeezing_by_control/tree/main
 - Ref: Edison S. Carrera, Harold Erbin & Grégoire Misguich (2025) Preparing spin-squeezed states in Rydberg atom arrays via quantum optimal control, https://arxiv.org/abs/2507.07875
 
 Contents
