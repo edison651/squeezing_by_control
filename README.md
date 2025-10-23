@@ -1,6 +1,6 @@
 # squeezing_by_control
 
-Code to find optimized time-dependent control pulses in Rydberg-atom arrays to generate spin‑squeezed states by unitary evolution. Implementation uses JAX for numeric kernels, Dynamiqs for time evolution (sesolve/mesolve), and Optax for optimization helpers.
+Code to find optimized time-dependent control pulses in Rydberg-atom arrays to generate spin‑squeezed states by unitary evolution. Implementation uses JAX for numeric kernels, Dynamiqs for time evolution, and Optax for optimization helpers.
 
 Repository
 - GitHub: https://github.com/edison651/squeezing_by_control
